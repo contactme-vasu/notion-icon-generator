@@ -213,6 +213,7 @@
 
       <div class="actions">
         <button id="copyImage" type="button" class="primary">Copy PNG</button>
+        <button id="copyLink" type="button">Copy Link</button>
         <a id="download" class="download" href="#" download="notion-icon-n.png">Download PNG</a>
         <button id="randomize" type="button" title="Random colors" aria-label="Random colors">Mix</button>
       </div>
@@ -235,6 +236,7 @@
     const letterSizeValue = document.getElementById("letterSizeValue");
     const download = document.getElementById("download");
     const copyImage = document.getElementById("copyImage");
+    const copyLink = document.getElementById("copyLink");
     const randomize = document.getElementById("randomize");
 
     const palettes = [
@@ -296,6 +298,15 @@
       download.href = canvas.toDataURL("image/png");
     }
 
+    function getIconLink() {
+      const url = new URL("/icon", window.location.origin);
+      url.searchParams.set("text", getIconText(letterInput.value));
+      url.searchParams.set("bg", bgColorInput.value.replace("#", ""));
+      url.searchParams.set("fg", fgColorInput.value.replace("#", ""));
+      url.searchParams.set("size", letterSizeInput.value);
+      return url.toString();
+    }
+
     letterInput.addEventListener("input", drawIcon);
     letterInput.addEventListener("blur", () => {
       letterInput.value = getIconText(letterInput.value);
@@ -324,6 +335,19 @@
           alert("Copy did not work in this browser context. Use Download PNG instead.");
         }
       }, "image/png");
+    });
+
+    copyLink.addEventListener("click", async () => {
+      const iconLink = getIconLink();
+      try {
+        await navigator.clipboard.writeText(iconLink);
+        copyLink.textContent = "Copied";
+        setTimeout(() => {
+          copyLink.textContent = "Copy Link";
+        }, 1400);
+      } catch (error) {
+        window.prompt("Copy this icon link", iconLink);
+      }
     });
 
     randomize.addEventListener("click", () => {
