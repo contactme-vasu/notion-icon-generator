@@ -5,11 +5,12 @@ export async function onRequest({ request }) {
   const fg = sanitizeHex(url.searchParams.get("fg") || "ffffff", "ffffff");
   const size = clampNumber(url.searchParams.get("size"), 40, 220, 220);
   const fontSize = getFontSize(text, size);
+  const textY = Math.round(256 + fontSize * 0.075);
 
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <rect width="512" height="512" fill="#${bg}"/>
-  <text x="256" y="256" text-anchor="middle" dominant-baseline="central" alignment-baseline="central"
+  <text x="256" y="${textY}" text-anchor="middle" dominant-baseline="central" alignment-baseline="central"
     font-family="Georgia, 'Times New Roman', serif" font-size="${fontSize}" font-weight="700"
     fill="#${fg}">${escapeXml(text)}</text>
 </svg>`;
