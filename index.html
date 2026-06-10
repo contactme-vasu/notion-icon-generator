@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notion Icon Generator</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f4ef;
+      --panel: #ffffff;
+      --text: #191919;
+      --muted: #66645f;
+      --line: #dedbd2;
+      --accent: #0f766e;
+      --accent-dark: #0b5d56;
+      --canvas-bg: #ff0000;
+      --canvas-fg: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 28px;
+    }
+
+    main {
+      width: min(920px, 100%);
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(280px, 1fr);
+      gap: 28px;
+      align-items: center;
+    }
+
+    .controls {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 16px 40px rgba(25, 25, 25, 0.08);
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.1;
+      margin: 0 0 20px;
+      letter-spacing: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin: 18px 0 8px;
+    }
+
+    input[type="text"],
+    input[type="color"],
+    input[type="range"] {
+      width: 100%;
+    }
+
+    input[type="text"] {
+      height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0 14px;
+      font: 700 22px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+      text-transform: uppercase;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.16);
+    }
+
+    input[type="color"] {
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 4px;
+      background: #fff;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 52px;
+      gap: 12px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 48px;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    button,
+    a.download {
+      height: 46px;
+      border: 0;
+      border-radius: 6px;
+      font: 700 14px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+      cursor: pointer;
+    }
+
+    a.download {
+      display: inline-grid;
+      place-items: center;
+      color: #fff;
+      background: var(--accent);
+      text-decoration: none;
+    }
+
+    a.download:hover {
+      background: var(--accent-dark);
+    }
+
+    button {
+      background: #ece9e0;
+      color: var(--text);
+    }
+
+    button:hover {
+      background: #dfdbd1;
+    }
+
+    button.primary {
+      color: #fff;
+      background: #2f5f57;
+    }
+
+    button.primary:hover {
+      background: #244c46;
+    }
+
+    .preview {
+      display: grid;
+      place-items: center;
+      min-height: 460px;
+    }
+
+    .icon-shell {
+      width: min(420px, 100%);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      image-rendering: auto;
+      border-radius: 0;
+      box-shadow: 0 18px 42px rgba(25, 25, 25, 0.22);
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 18px;
+        align-items: start;
+      }
+
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .preview {
+        min-height: auto;
+        order: -1;
+      }
+
+      .icon-shell {
+        width: min(320px, 100%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="controls" aria-label="Icon settings">
+      <h1>Notion Icon Generator</h1>
+
+      <label for="letter">Text</label>
+      <input id="letter" type="text" value="N" placeholder="N" autocomplete="off" autofocus>
+
+      <label for="bgColor">Background</label>
+      <input id="bgColor" type="color" value="#ff0000">
+
+      <label for="fgColor">Text color</label>
+      <input id="fgColor" type="color" value="#ffffff">
+
+      <label for="letterSize">Text size</label>
+      <div class="range-row">
+        <input id="letterSize" type="range" min="40" max="220" value="220">
+        <span id="letterSizeValue">220</span>
+      </div>
+
+      <div class="actions">
+        <button id="copyImage" type="button" class="primary">Copy PNG</button>
+        <a id="download" class="download" href="#" download="notion-icon-n.png">Download PNG</a>
+        <button id="randomize" type="button" title="Random colors" aria-label="Random colors">Mix</button>
+      </div>
+    </section>
+
+    <section class="preview" aria-label="Icon preview">
+      <div class="icon-shell">
+        <canvas id="iconCanvas" width="280" height="280" aria-label="Generated icon"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("iconCanvas");
+    const ctx = canvas.getContext("2d");
+    const letterInput = document.getElementById("letter");
+    const bgColorInput = document.getElementById("bgColor");
+    const fgColorInput = document.getElementById("fgColor");
+    const letterSizeInput = document.getElementById("letterSize");
+    const letterSizeValue = document.getElementById("letterSizeValue");
+    const download = document.getElementById("download");
+    const copyImage = document.getElementById("copyImage");
+    const randomize = document.getElementById("randomize");
+
+    const palettes = [
+      ["#000000", "#ffffff"],
+      ["#ffffff", "#000000"],
+      ["#f2eee3", "#111111"],
+      ["#0f766e", "#ffffff"],
+      ["#7c2d12", "#fff7ed"],
+      ["#1f2937", "#f9fafb"],
+      ["#7f1d1d", "#fff1f2"],
+      ["#78350f", "#fffbeb"],
+    ];
+
+    // Updated to return the full trimmed string
+    function getIconText(value) {
+      const trimmed = value.trim();
+      return trimmed ? trimmed.toUpperCase() : "N";
+    }
+
+    function drawIcon() {
+      const text = getIconText(letterInput.value);
+      const bgColor = bgColorInput.value;
+      const fgColor = fgColorInput.value;
+      let size = Number(letterSizeInput.value);
+
+      letterSizeValue.textContent = size;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      
+      // Set initial font
+      ctx.font = `700 ${size}px Georgia, "Times New Roman", serif`;
+      let metrics = ctx.measureText(text);
+
+      // Auto-scaling logic: check if text is wider than the canvas (minus some padding)
+      const maxWidth = canvas.width - 40; // 20px padding on left/right
+      if (metrics.width > maxWidth) {
+        // Calculate the scale factor and adjust size
+        size = Math.floor(size * (maxWidth / metrics.width));
+        ctx.font = `700 ${size}px Georgia, "Times New Roman", serif`;
+        metrics = ctx.measureText(text); // Re-measure with the new size
+      }
+
+      // Calculate vertical offset for proper center alignment
+      const yOffset = (metrics.actualBoundingBoxDescent - metrics.actualBoundingBoxAscent) / 2;
+      const x = canvas.width / 2;
+      const y = canvas.height / 2 - yOffset;
+
+      ctx.fillStyle = fgColor;
+      ctx.fillText(text, x, y);
+
+      // Clean string for safe file names
+      const fileText = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "icon";
+      download.download = `notion-icon-${fileText}.png`;
+      download.href = canvas.toDataURL("image/png");
+    }
+
+    letterInput.addEventListener("input", drawIcon);
+    letterInput.addEventListener("blur", () => {
+      letterInput.value = getIconText(letterInput.value);
+      drawIcon();
+    });
+    bgColorInput.addEventListener("input", drawIcon);
+    fgColorInput.addEventListener("input", drawIcon);
+    letterSizeInput.addEventListener("input", drawIcon);
+
+    copyImage.addEventListener("click", async () => {
+      if (!navigator.clipboard || !window.ClipboardItem) {
+        alert("Image clipboard copy is not available in this browser. Use Download PNG instead.");
+        return;
+      }
+
+      canvas.toBlob(async (blob) => {
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ "image/png": blob }),
+          ]);
+          copyImage.textContent = "Copied";
+          setTimeout(() => {
+            copyImage.textContent = "Copy PNG";
+          }, 1400);
+        } catch (error) {
+          alert("Copy did not work in this browser context. Use Download PNG instead.");
+        }
+      }, "image/png");
+    });
+
+    randomize.addEventListener("click", () => {
+      const [bg, fg] = palettes[Math.floor(Math.random() * palettes.length)];
+      bgColorInput.value = bg;
+      fgColorInput.value = fg;
+      drawIcon();
+    });
+
+    drawIcon();
+  </script>
+</body>
+</html>
